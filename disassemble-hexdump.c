@@ -148,15 +148,16 @@ static struct option long_options[] = {
     {"version", no_argument, 0, 'v'},
     {"64-bit", no_argument, 0, '6'},
     {"32-bit", no_argument, 0, '3'},
+    {"16-bit", no_argument, 0, '1'},
     {0, 0, 0, 0}
 };
 
 static void help(void)
 {
-    puts("disassemble-hexdump [-3|--32-bit] [-6|--64-bit] [-i|--input INPUT_FILE] [-o|--output OUTPUT_FILE]");
+    puts("disassemble-hexdump [-3|--32-bit] [-6|--64-bit] [-1|--16-bit] [-i|--input INPUT_FILE] [-o|--output OUTPUT_FILE]");
     puts("");
     puts("Turns a hex dump into x86 assembly language.");
-    puts("Defaults to x86-64. Use -3 or --32-bit to see i386.");
+    puts("Defaults to x86-64. Use -3 or --32-bit to see i386, or -1 or --16-bit to see i8086.");
     puts("Intel syntax.");
     puts("Defaults to stdin and stdout.");
 }
@@ -172,7 +173,7 @@ int main(int argc, char *argv[])
     FILE *in = stdin, *out = stdout;
     char *inf = "stdin", *outf = "stdout";
 
-    while ((c = getopt_long(argc, argv, "i:o:36hv", long_options, &option_index)) != -1) {
+    while ((c = getopt_long(argc, argv, "i:o:361hv", long_options, &option_index)) != -1) {
         switch (c) {
             case 0:
                 switch (option_index) {
@@ -192,7 +193,10 @@ int main(int argc, char *argv[])
                         m = bfd_mach_x86_64_intel_syntax;
                         break;
                     case 5:
-                        m = bfd_mach_i386_intel_syntax;
+                        m = bfd_mach_i386_i386_intel_syntax;
+                        break;
+                    case 6:
+                        m = bfd_mach_i386_i8086;
                         break;
                 }
 
@@ -204,10 +208,13 @@ int main(int argc, char *argv[])
                 outf = optarg;
                 break;
             case '3':
-                m = bfd_mach_i386_intel_syntax;
+                m = bfd_mach_i386_i386_intel_syntax;
                 break;
             case '6':
                 m = bfd_mach_x86_64_intel_syntax;
+                break;
+            case '1':
+                m = bfd_mach_i386_i8086;
                 break;
             case 'h':
                 help();
