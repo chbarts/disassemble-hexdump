@@ -96,7 +96,7 @@ static char *disassemble_raw(uint8_t *input_buffer, size_t input_buffer_size, in
     return disassembled;    
 }
 
-static int disasm(FILE *in, FILE *out, int m)
+static int dodisasm(FILE *in, FILE *out, int m)
 {
     int res = 0, i, r;
     char *dis;
@@ -243,7 +243,7 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    switch (disasm(in, out, m)) {
+    switch (dodisasm(in, out, m)) {
     case 0:
         exitv = EXIT_SUCCESS;
         break;
