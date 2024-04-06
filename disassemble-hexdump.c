@@ -76,7 +76,7 @@ static char *disassemble_raw(uint8_t *input_buffer, size_t input_buffer_size, in
     disasm_info.disassembler_options = "intel-mnemonic";
     disassemble_init_for_target(&disasm_info);
 
-    disasm = disassembler(bfd_arch_i386, false, bfd_mach_x86_64, NULL);
+    disasm = disassembler(bfd_arch_i386, false, mach, NULL);
     while (pc < input_buffer_size) {
         size_t insn_size = disasm(pc, &disasm_info);
         pc += insn_size;
