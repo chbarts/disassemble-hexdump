@@ -59,6 +59,27 @@ static int dis_fprintf(void *stream, const char *fmt, ...)
     return 0;
 }
 
+static int fprintf_styled(void *stream, enum disassembler_style style, const char *fmt, ...)
+{
+    stream_state *ss = (stream_state *) stream;
+    va_list arg;
+    va_start(arg, fmt);
+    if (!ss->reenter) {
+        vasprintf(&ss->insn_buffer, fmt, arg);
+        ss->reenter = true;
+    } else {
+        char *tmp, *tmp2;
+        vasprintf(&tmp, fmt, arg);
+        asprintf(&tmp2, "%s%s", ss->insn_buffer, tmp);
+        free(ss->insn_buffer);
+        free(tmp);
+        ss->insn_buffer = tmp2;
+    }
+
+    va_end(arg);
+    return 0;
+}
+
 static char *disassemble_raw(uint8_t *input_buffer, size_t input_buffer_size, int mach)
 {
     size_t pc = 0;
@@ -66,7 +87,7 @@ static char *disassemble_raw(uint8_t *input_buffer, size_t input_buffer_size, in
     char *disassembled = NULL;
     stream_state ss = {};
     disassemble_info disasm_info = {};
-    init_disassemble_info(&disasm_info, &ss, dis_fprintf);
+    init_disassemble_info(&disasm_info, &ss, dis_fprintf, fprintf_styled);
     disasm_info.arch = bfd_arch_i386;
     disasm_info.mach = mach;
     disasm_info.read_memory_func = buffer_read_memory;
